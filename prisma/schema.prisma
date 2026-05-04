@@ -1,0 +1,33 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Ini adalah struktur tabel Buku Tamu kamu
+model Guest {
+  id                String   @id @default(cuid())
+  nama              String
+  alamat            String
+  asalPerusahaan    String
+  jabatan           String
+  noTelp            String
+  keperluan         String   @db.Text
+  tanggalBerkunjung DateTime @default(now())
+}
+
+// Ini persiapan untuk tabel login Admin nanti
+model Admin {
+  id       String @id @default(cuid())
+  username String @unique
+  password String
+}

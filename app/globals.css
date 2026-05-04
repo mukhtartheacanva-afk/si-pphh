@@ -24,3 +24,35 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@media print {
+  /* Sembunyikan elemen yang tidak perlu di kertas */
+  .no-print,
+  button,
+  input,
+  header,
+  footer {
+    display: none !important;
+  }
+
+  /* Hilangkan background abu-abu body agar hemat tinta */
+  body {
+    background-color: white !important;
+    color: black !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Lebarkan tabel agar pas di kertas A4 */
+  .max-w-6xl {
+    max-width: 100% !important;
+    width: 100% !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  table {
+    width: 100% !important;
+    border: 1px solid #e5e7eb !important;
+  }
+}
