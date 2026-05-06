@@ -3,6 +3,7 @@
 import { loginAdmin } from "@/actions/auth-action";
 import { useRouter } from "next/navigation";
 import Link from "next/link"; // Tambahkan import Link
+import Swal from 'sweetalert2'; // 1. Import SweetAlert2
 
 export default function LoginPage() {
   const router = useRouter();
@@ -10,9 +11,22 @@ export default function LoginPage() {
   async function handleLogin(formData: FormData) {
     const res = await loginAdmin(formData);
     if (res.success) {
+      // Alert sukses yang keren
+      Swal.fire({
+        title: 'Berhasil Login!',
+        text: 'Selamat datang di Dashboard Admin BU-TAGI',
+        icon: 'success',
+        confirmButtonColor: '#064e3b', // Warna emerald gelap
+      });
       router.push("/admin/dashboard");
     } else {
-      alert(res.error);
+      // Alert gagal yang lebih cantik
+      Swal.fire({
+        title: 'Login Gagal',
+        text: res.error,
+        icon: 'error',
+        confirmButtonColor: '#6d4c41', // Warna kayu
+      });
     }
   }
 

@@ -1,6 +1,7 @@
 "use client";
 import { simpanTamu } from "@/actions/guest-action";
 import { useRef, useState } from "react";
+import Swal from 'sweetalert2'; // 1. Import SweetAlert2
 
 export default function FormTamu() {
   const formRef = useRef<HTMLFormElement>(null);
@@ -12,7 +13,13 @@ export default function FormTamu() {
     setLoading(false);
 
     if (res?.success) {
-      alert("Terima kasih! Data Anda telah tersimpan.");
+      Swal.fire({
+        title: 'Terima Kasih!',
+        text: 'Data kunjungan Anda telah tersimpan.',
+        icon: 'success',
+        confirmButtonText: 'Oke',
+        confirmButtonColor: '#10b981',
+      });
       formRef.current?.reset();
     } else {
       alert(res?.error || "Terjadi kesalahan");
@@ -60,12 +67,12 @@ export default function FormTamu() {
       {/* Baris 6: tanggal berkunjung */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Tanggal Kunjungan</label>
-        <input name="tanggalBerkunjung" type="date" required className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-black"/>
+        <input name="tanggalBerkunjung" type="date" required className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-black" />
       </div>
 
       {/* Tombol Simpan */}
-      <button 
-        type="submit" 
+      <button
+        type="submit"
         disabled={loading}
         className={`w-full py-4 rounded-xl font-bold text-white transition duration-300 ${loading ? 'bg-gray-400' : 'bg-emerald-600 hover:bg-emerald-700 shadow-lg'}`}
       >
