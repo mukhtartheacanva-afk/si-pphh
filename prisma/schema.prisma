@@ -18,6 +18,7 @@ model Pos {
   guests    Guest[]
   admins    Admin[]
   alats     Alat[]
+@@map("pos")
 }
 
 // --- CLUSTER 2: BUKU TAMU (MODIFIED) ---
@@ -34,6 +35,7 @@ model Guest {
   // Penanda data milik Pos mana
   posId             String
   pos               Pos      @relation(fields: [posId], references: [id])
+@@map("guest")
 }
 
 // --- CLUSTER 3: USER & AUTH (MODIFIED) ---
@@ -46,6 +48,7 @@ model Admin {
   // Admin tertentu hanya bisa akses Pos tertentu
   posId     String?
   pos       Pos?    @relation(fields: [posId], references: [id])
+@@map("admin")
 }
 
 // --- CLUSTER 4: INVENTARIS & SOP CHECKLIST ---
@@ -61,6 +64,7 @@ model Alat {
   pos          Pos      @relation(fields: [posId], references: [id])
   
   checklists   Checklist[]
+@@map("alat")
 }
 
 model Checklist {
@@ -76,4 +80,5 @@ model Checklist {
   keterangan    String?   @db.Text
   
   status        String    @default("BELUM_KEMBALI") // KEMBALI / BELUM_KEMBALI
+  @@map("checklists")
 }
