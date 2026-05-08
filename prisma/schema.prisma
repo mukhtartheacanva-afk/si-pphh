@@ -80,5 +80,5 @@ model Checklist {
   keterangan    String?   @db.Text
   
   status        String    @default("BELUM_KEMBALI") // KEMBALI / BELUM_KEMBALI
-  @@map("checklists")
+  @@map("checklist")
 }
