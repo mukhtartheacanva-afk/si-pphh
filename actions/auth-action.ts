@@ -4,11 +4,11 @@ import { db } from "@/lib/db";
 import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { revalidatePath } from "next/cache"; // <--- TAMBAHKAN INI
+import { revalidatePath } from "next/cache"; 
 import { createToken } from "@/lib/auth";
 
 /**
- * LOGIN ADMIN (Tetap sama, sudah OK)
+ * LOGIN ADMIN
  */
 export async function loginAdmin(formData: FormData) {
   const username = formData.get("username") as string;
@@ -36,10 +36,14 @@ export async function loginAdmin(formData: FormData) {
     });
 
     const cookieStore = await cookies();
+    
+    // --- PERBAIKAN DI SINI ---
     cookieStore.set("admin-token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 60 * 60 * 24,
+      // Di-set false dulu karena VPS belum pakai HTTPS (SSL)
+      // Kalau ini true, cookie bakal ditolak browser di koneksi HTTP biasa
+      secure: false, 
+      maxAge: 60 * 60 * 24, // 24 Jam
       path: "/",
       sameSite: "lax",
     });
@@ -53,7 +57,7 @@ export async function loginAdmin(formData: FormData) {
 }
 
 /**
- * LOGOUT ADMIN (Update bagian revalidate)
+ * LOGOUT ADMIN
  */
 export async function logoutAdmin() {
   const cookieStore = await cookies();
@@ -61,8 +65,7 @@ export async function logoutAdmin() {
   // 1. Hapus cookie session
   cookieStore.delete("admin-token"); 
 
-  // 2. PAKSA REFRESH CACHE (Ini obat buat error Unexpected Response tadi)
-  // Menghapus cache semua halaman di bawah folder /admin
+  // 2. PAKSA REFRESH CACHE
   revalidatePath("/admin", "layout"); 
   
   // 3. Balik ke login
