@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
-
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
@@ -13,7 +7,20 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// Ini adalah struktur tabel Buku Tamu kamu
+// --- CLUSTER 1: MASTER DATA POS ---
+model Pos {
+  id        String   @id @default(cuid())
+  namaPos   String   @unique // Misal: Pos Pelabuhan, Pos Wonokromo
+  kodePos   String   @unique // Untuk URL, misal: "plb", "wnk"
+  lokasi    String?
+  
+  // Relasi
+  guests    Guest[]
+  admins    Admin[]
+  alats     Alat[]
+}
+
+// --- CLUSTER 2: BUKU TAMU (MODIFIED) ---
 model Guest {
   id                String   @id @default(cuid())
   nama              String
@@ -23,11 +30,50 @@ model Guest {
   noTelp            String
   keperluan         String   @db.Text
   tanggalBerkunjung DateTime @default(now())
+  
+  // Penanda data milik Pos mana
+  posId             String
+  pos               Pos      @relation(fields: [posId], references: [id])
 }
 
-// Ini persiapan untuk tabel login Admin nanti
+// --- CLUSTER 3: USER & AUTH (MODIFIED) ---
 model Admin {
-  id       String @id @default(cuid())
-  username String @unique
-  password String
+  id        String @id @default(cuid())
+  username  String @unique
+  password  String
+  role      String @default("PETUGAS") // "SUPERADMIN" atau "PETUGAS"
+  
+  // Admin tertentu hanya bisa akses Pos tertentu
+  posId     String?
+  pos       Pos?    @relation(fields: [posId], references: [id])
+}
+
+// --- CLUSTER 4: INVENTARIS & SOP CHECKLIST ---
+model Alat {
+  id           String   @id @default(cuid())
+  namaAlat     String   // APD, Meteran Roll, Kapur, dll
+  barcode      String   @unique
+  kategori     String   // APD / Alat Ukur / ATK
+  status       String   @default("TERSEDIA") // TERSEDIA / KELUAR / RUSAK
+  
+  // Lokasi penyimpanan alat
+  posId        String
+  pos          Pos      @relation(fields: [posId], references: [id])
+  
+  checklists   Checklist[]
+}
+
+model Checklist {
+  id            String    @id @default(cuid())
+  alatId        String
+  alat          Alat      @relation(fields: [alatId], references: [id])
+  petugas       String    // Nama petugas yang membawa
+  waktuKeluar   DateTime  @default(now())
+  waktuKembali  DateTime?
+  
+  kondisiKeluar String    @default("BAIK")
+  kondisiBalik  String?
+  keterangan    String?   @db.Text
+  
+  status        String    @default("BELUM_KEMBALI") // KEMBALI / BELUM_KEMBALI
 }

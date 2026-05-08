@@ -13,8 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "BU-TAGI | Buku Tamu Digital",
-  description: "Sistem Monitoring Tamu",
+  title: "SI-PPHH | Sistem Informasi Pelayanan Pengelolaan Hutan",
+  description:
+    "Sistem informasi yang ada di UPT Pelayanan Pengelolaan Hasil Hutan",
 };
 
 export default function RootLayout({

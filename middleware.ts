@@ -1,26 +1,52 @@
-// middleware.ts
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { verifyToken } from "@/lib/auth";
 
-export function middleware(request: NextRequest) {
-  const session = request.cookies.get("admin_session");
-  const isLoginPage = request.nextUrl.pathname.startsWith("/login");
-  const isAdminPage = request.nextUrl.pathname.startsWith("/admin");
+export async function middleware(request: NextRequest) {
+  const token = request.cookies.get("admin-token")?.value;
+  const { pathname } = request.nextUrl;
 
-  // Jika mencoba akses /admin tapi belum login
-  if (isAdminPage && !session) {
-    return NextResponse.redirect(new URL("/login", request.url));
+  // 1. Proteksi Halaman Admin
+  if (pathname.startsWith("/admin")) {
+    // Jika tidak ada token
+    if (!token) {
+      const loginUrl = new URL("/login", request.url);
+      // Simpan halaman yang mau diakses (misal: /admin/alat) agar bisa balik lagi setelah login
+      loginUrl.searchParams.set("callback", pathname); 
+      return NextResponse.redirect(loginUrl);
+    }
+
+    // Verifikasi token secara asinkron
+    const payload = await verifyToken(token);
+    
+    // Jika token tidak valid atau expired
+    if (!payload) {
+      const response = NextResponse.redirect(new URL("/login", request.url));
+      response.cookies.delete("admin-token"); // Bersihkan sisa token
+      return response;
+    }
   }
 
-  // Jika sudah login tapi malah mau ke halaman login lagi
-  if (isLoginPage && session) {
-    return NextResponse.redirect(new URL("/admin/dashboard", request.url));
+  // 2. Cegah Admin Balik ke Login kalau sudah login
+  if (pathname === "/login" && token) {
+    const payload = await verifyToken(token);
+    
+    if (payload) {
+      // Jika sudah login tapi iseng buka halaman /login, lempar ke dashboard utama
+      return NextResponse.redirect(new URL("/admin/dashboard", request.url));
+    }
   }
 
   return NextResponse.next();
 }
 
-// Hanya proteksi folder admin dan login
 export const config = {
-  matcher: ["/admin/:path*", "/login"],
+  matcher: [
+    /*
+     * Mencegat semua request di folder /admin dan halaman /login
+     * Tidak mencegat file statis, api, dll.
+     */
+    '/admin/:path*',
+    '/login',
+  ],
 };

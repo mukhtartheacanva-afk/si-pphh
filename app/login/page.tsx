@@ -1,87 +1,149 @@
-// app/login/page.tsx
 "use client";
+
 import { loginAdmin } from "@/actions/auth-action";
-import { useRouter } from "next/navigation";
-import Link from "next/link"; // Tambahkan import Link
-import Swal from 'sweetalert2'; // 1. Import SweetAlert2
+import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
+import Swal from "sweetalert2";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const callback = searchParams.get("callback");
+
+  // --- LOGIKA JUDUL DINAMIS ---
+  // Jika callback mengandung kata "alat", judul jadi INVENTARIS
+  // Jika tidak (atau masuk ke dashboard tamu), tetap BU-TAGI
+  const isInventaris = callback?.includes("alat");
+  const pageTitle = isInventaris ? "INVENTARIS" : "BU-TAGI";
+  const subTitle = isInventaris
+    ? "Manajemen Peralatan & APD"
+    : "Portal Administrasi Digital";
 
   async function handleLogin(formData: FormData) {
     const res = await loginAdmin(formData);
+
     if (res.success) {
-      // Alert sukses yang keren
-      Swal.fire({
-        title: 'Berhasil Login!',
-        text: 'Selamat datang di Dashboard Admin BU-TAGI',
-        icon: 'success',
-        confirmButtonColor: '#064e3b', // Warna emerald gelap
+      await Swal.fire({
+        title: "Berhasil Login!",
+        text: `Selamat datang di Sistem ${pageTitle}`,
+        icon: "success",
+        confirmButtonColor: "#1c1917",
       });
-      router.push("/admin/dashboard");
+
+      const destination = callback || "/admin/dashboard";
+      window.location.href = destination;
     } else {
-      // Alert gagal yang lebih cantik
       Swal.fire({
-        title: 'Login Gagal',
+        title: "Login Gagal",
         text: res.error,
-        icon: 'error',
-        confirmButtonColor: '#6d4c41', // Warna kayu
+        icon: "error",
+        confirmButtonColor: "#44403c",
       });
     }
   }
 
   return (
-    // Sesuaikan background agar lebih serasi dengan stone theme (di image_993fbb.png)
-    <div className="min-h-screen bg-emerald-200 bg-[url('/motif-kayu.png')] bg-no-repeat bg-contain py-10 px-4 flex items-center justify-center">
-      
-      {/* Container Utama */}
-      <form action={handleLogin} className="bg-white p-10 rounded-3xl shadow-xl w-[400px] border border-stone-100">
-        
-        {/* Header Tema Buku Tamu */}
-        <h1 className="text-3xl font-extrabold mb-2 text-center text-stone-900">BU-TAGI</h1>
-        <p className="text-center text-stone-600 mb-8 font-medium">Akses Portal Admin Monitoring</p>
-        
-        {/* Area Input */}
-        <div className="space-y-5">
-          <input 
-            name="username" 
-            placeholder="Username Admin" 
-            className="w-full p-4 border border-stone-200 rounded-xl text-black bg-stone-50 focus:ring-2 focus:ring-stone-400 focus:border-stone-400" 
-            required 
-          />
-          <input 
-            name="password" 
-            type="password" 
-            placeholder="Password" 
-            className="w-full p-4 border border-stone-200 rounded-xl text-black bg-stone-50 focus:ring-2 focus:ring-stone-400 focus:border-stone-400" 
-            required 
-          />
-          
-          {/* Tombol Masuk - Sesuaikan warna dengan tema stone/hitam PPHH */}
-          <button 
-            type="submit" 
-            className="w-full bg-stone-900 hover:bg-black text-white p-4 rounded-xl font-bold text-lg transition-all duration-200 shadow-md"
+    <div className="min-h-screen bg-gradient-to-bl from-lime-950 via-lime-700 to-amber-300 bg-center py-10 px-4 flex items-center justify-center">
+      <div
+        className="absolute inset-0 pointer-events-none z-0"
+        style={{
+          backgroundImage: "url('/motif-daun.png')",
+          backgroundSize: "500px", // Sekarang sizenya bisa lo atur di sini
+          backgroundRepeat: "no-repeat",
+          width: "900px",
+          height: "900px",
+        }}
+      />
+      {/* --- Motif Kayu yang FULL --- */}
+      <div
+        className="absolute inset-0 pointer-events-none z-0"
+        style={{
+          backgroundImage: "url('/bg-kayu.jpg')", // Pastikan file gambarnya minimal resolusi 1920x1080
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          opacity: "0.4", // Jangan terlalu terang biar tulisan tetap kebaca
+          filter: "blur(0px) brightness(0.8)", // Paksa blur jadi 0 dan turunin brightness dikit biar tajam
+          width: "100%",
+          height: "100%",
+        }}
+      />
+      <form
+        action={handleLogin}
+        className="bg-white/90 backdrop-blur-sm p-10 rounded-3xl shadow-2xl w-full max-w-[400px] border border-stone-200"
+      >
+        {/* Header Dinamis */}
+        <div className="text-center mb-8">
+          <h1
+            className={`text-4xl font-black mb-1 tracking-tighter ${isInventaris ? "text-emerald-800" : "text-stone-900"}`}
           >
-            Masuk Portal
+            {pageTitle}
+          </h1>
+          <div
+            className={`h-1 w-12 mx-auto mb-4 ${isInventaris ? "bg-emerald-800" : "bg-stone-900"}`}
+          ></div>
+          <p className="text-stone-500 font-medium italic">{subTitle}</p>
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <label className="block text-xs font-bold text-stone-500 uppercase ml-1 mb-1">
+              Username Admin
+            </label>
+            <input
+              name="username"
+              type="text"
+              placeholder="Masukkan username"
+              className="w-full p-4 border border-stone-200 rounded-xl text-black bg-stone-50 focus:ring-2 focus:ring-stone-900 outline-none transition-all"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-stone-500 uppercase ml-1 mb-1">
+              Password
+            </label>
+            <input
+              name="password"
+              type="password"
+              placeholder="••••••••"
+              className="w-full p-4 border border-stone-200 rounded-xl text-black bg-stone-50 focus:ring-2 focus:ring-stone-900 outline-none transition-all"
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            className={`w-full p-4 rounded-xl font-bold text-lg transition-all duration-300 shadow-lg hover:shadow-xl mt-4 text-white ${isInventaris ? "bg-emerald-900 hover:bg-emerald-950" : "bg-stone-900 hover:bg-black"}`}
+          >
+            Masuk {isInventaris ? "Sistem" : "Portal"}
           </button>
         </div>
-        {/* Tombol Kembali ke Halaman Form Tamu (Halaman Utama) */}
-      <div className="mt-8 text-center">
-        <Link 
-          href="/" 
-          className="text-stone-600 hover:text-stone-900 font-medium flex items-center gap-2 transition-colors"
-        >
-          {/* Icon Panah Kiri */}
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
-          </svg>
-          Kembali ke Pengisian Buku Tamu
-        </Link>
-      </div>
+
+        <div className="mt-10 pt-6 border-t border-stone-100 text-center">
+          <Link
+            href="/"
+            className="text-stone-500 hover:text-stone-900 font-semibold flex items-center justify-center gap-2 transition-colors group"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2.5}
+              stroke="currentColor"
+              className="w-4 h-4 group-hover:-translate-x-1 transition-transform"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"
+              />
+            </svg>
+            Halaman Utama
+          </Link>
+        </div>
       </form>
-
-      
-
     </div>
   );
 }
