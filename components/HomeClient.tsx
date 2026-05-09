@@ -8,6 +8,8 @@ import { MonitorPlay, GraduationCap, Lightbulb } from "lucide-react";
 import { BookCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+
 export default function HomeClient({
   countTamu,
   countPos,

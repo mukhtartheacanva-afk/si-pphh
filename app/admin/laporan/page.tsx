@@ -2,6 +2,8 @@ import { db } from "@/lib/db";
 import LaporanHeader from "@/components/LaporanHeader";
 import LaporanTable from "@/components/LaporanTable"; // Komponen baru
 
+export const dynamic = "force-dynamic";
+
 export default async function LaporanPage() {
   const riwayat = await db.checklist.findMany({
     include: { alat: { include: { pos: true } } },
