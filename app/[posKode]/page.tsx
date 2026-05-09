@@ -28,9 +28,15 @@ export default async function PosPage({
     <main className="min-h-screen bg-[#A8E6CF] flex items-center justify-center p-6 md:p-8 relative overflow-hidden">
       {/* Dekorasi Daun Samping */}
       <div
-        className="absolute left-0 top-0 w-1/3 h-full bg-no-repeat bg-contain opacity-80 pointer-events-none hidden lg:block"
-        style={{ backgroundImage: "url('/motif-kayu.png')" }}
-      ></div>
+        className="absolute inset-0 pointer-events-none z-0"
+        style={{
+          backgroundImage: "url('/motif-daun.png')",
+          backgroundSize: "600px",
+          backgroundRepeat: "no-repeat",
+          width: "900px",
+          height: "900px",
+        }}
+      />
 
       {/* Kontainer Utama */}
       <div className="w-full max-w-xl bg-white/95 backdrop-blur-md rounded-[3rem] shadow-[0_35px_60px_-15px_rgba(0,0,0,0.3)] border border-white/20 overflow-hidden transform hover:scale-[1.01] transition-transform duration-300 z-10">
